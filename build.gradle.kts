@@ -32,6 +32,9 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("io.ktor:ktor-server-config-yaml")
     testImplementation("io.ktor:ktor-server-test-host")
+    implementation("org.jsoup:jsoup:1.17.1")
+    implementation("io.ktor:ktor-serialization-gson-jvm:2.3.4")
+
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 
     implementation("io.ktor:ktor-server-host-common-jvm")

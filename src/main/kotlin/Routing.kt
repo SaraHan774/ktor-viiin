@@ -2,10 +2,16 @@ package chic.august
 
 import chic.august.model.Priority
 import chic.august.model.Task
+import chic.august.scraper.KocwLectureInfo
+import chic.august.scraper.KocwScraper
 import io.ktor.http.*
 import io.ktor.serialization.*
+import io.ktor.serialization.gson.*
 import io.ktor.server.application.*
+import io.ktor.server.engine.*
 import io.ktor.server.http.content.*
+import io.ktor.server.netty.*
+import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -111,5 +117,23 @@ fun Application.configureRouting() {
             val type = ContentType.parse("text/html")
             call.respondText(text, type)
         }
+
+        embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
+            install(ContentNegotiation) {
+                //서버 ↔ 클라이언트 간 데이터 교환 형식을 자동으로 변환해주는 Ktor 플러그인
+                gson()
+            }
+            routing {
+                get("/api/kocw/course") {
+                    val cid = call.parameters["cid"]
+                    if (cid == null) {
+                        call.respond(mapOf("error" to "Missing cid"))
+                        return@get
+                    }
+                    val course = KocwScraper.scrapeLecture(cid)
+                    call.respond(course)
+                }
+            }
+        }.start(wait = true)
     }
 }
